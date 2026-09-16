@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Книжный навигатор | Подберите книгу по настроению</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f5f0e7 0%, #e8dfd3 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .book-advisor {
+            max-width: 750px;
+            width: 100%;
+            background: #fffef7;
+            border-radius: 48px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.3), 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .header {
+            background: #2c3e2f;
+            padding: 28px 32px 24px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header h1 span {
+            background: #f5b042;
+            font-size: 1.8rem;
+            display: inline-block;
+            padding: 0 8px;
+            border-radius: 60px;
+        }
+
+        .header p {
+            margin-top: 12px;
+            opacity: 0.85;
+            font-weight: 400;
+            font-size: 1rem;
+        }
+
+        .gift-badge {
+            margin-top: 16px;
+            background: rgba(245, 176, 66, 0.2);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            border: 1px solid rgba(245, 176, 66, 0.5);
+            line-height: 1.4;
+        }
+
+        .progress-area {
+            padding: 20px 32px 8px;
+            background: #fffef7;
+            border-bottom: 1px solid #ede6db;
+        }
+
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #7b6e5b;
+            margin-bottom: 10px;
+        }
+
+        .bar-bg {
+            background: #e2d9cf;
+            border-radius: 40px;
+            height: 8px;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            background: #2c5f2d;
+            width: 0%;
+            height: 100%;
+            border-radius: 40px;
+            transition: width 0.3s ease;
+        }
+
+        .quiz-container {
+            padding: 32px 32px 20px;
+        }
+
+        .question-card {
+            animation: fadeSlide 0.4s ease-out;
+        }
+
+        @keyframes fadeSlide {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .question-text {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #2b2b26;
+            margin-bottom: 28px;
+            line-height: 1.3;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 32px;
+        }
+
+        .option-btn {
+            background: #f9f6f0;
+            border: 1.5px solid #e5dbce;
+            border-radius: 100px;
+            padding: 14px 20px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #2c2c24;
+        }
+
+        .option-btn:hover {
+            background: #f0e9df;
+            border-color: #c7b8a6;
+            transform: scale(0.99);
+        }
+
+        .option-btn.selected {
+            background: #2c5f2d;
+            border-color: #2c5f2d;
+            color: white;
+            box-shadow: 0 6px 12px rgba(44, 95, 45, 0.2);
+        }
+
+        .option-emoji {
+            font-size: 1.5rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            gap: 16px;
+        }
+
+        .btn {
+            border: none;
+            background: #e7dfd5;
+            padding: 12px 24px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        .btn-primary {
+            background: #2c5f2d;
+            color: white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary:hover {
+            background: #1f4520;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e2d7cb;
+            color: #4a3e2e;
+        }
+
+        .btn-secondary:hover {
+            background: #d4c7b7;
+        }
+
+        .result-card {
+            background: #fef7e8;
+            border-radius: 32px;
+            padding: 28px;
+            margin-top: 12px;
+            border: 1px solid #f2e5d4;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            animation: fadeSlide 0.5s ease;
+        }
+
+        .book-title {
+            font-size: 1.9rem;
+            font-weight: 800;
+            color: #2c3e2f;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .book-author {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #7d6b53;
+            margin-bottom: 20px;
+            letter-spacing: 0.3px;
+        }
+
+        .book-desc {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #2f2e28;
+            background: white;
+            padding: 18px;
+            border-radius: 24px;
+            margin: 16px 0;
+            border-left: 6px solid #f5b042;
+        }
+
+        .book-emoji {
+            font-size: 2.8rem;
+            text-align: center;
+            margin: 10px 0 5px;
+        }
+
+        .telegram-btn {
+            background: linear-gradient(135deg, #2AABEE, #229ED9);
+            color: white;
+            width: 100%;
+            padding: 16px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(42, 171, 238, 0.3);
+        }
+
+        .telegram-btn:hover {
+            background: linear-gradient(135deg, #229ED9, #1B8AC0);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(42, 171, 238, 0.4);
+        }
+
+        .reset-btn {
+            background: transparent;
+            color: #7b6e5b;
+            width: 100%;
+            padding: 14px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border: 1.5px solid #d4c7b7;
+            border-radius: 50px;
+            margin-top: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .reset-btn:hover {
+            background: #f0e9df;
+            border-color: #c7b8a6;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #b7aa99;
+            padding: 20px 32px 28px;
+            border-top: 1px solid #efe3d4;
+        }
+
+        @media (max-width: 550px) {
+            .book-advisor { border-radius: 32px; }
+            .question-text { font-size: 1.4rem; }
+            .book-title { font-size: 1.5rem; }
+            .quiz-container { padding: 24px 20px; }
+            .header h1 { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="book-advisor" id="app">
+    <img src="https://i.ibb.co/XZ0WPM50/Banner.jpg" alt="Banner" style="width: 100%; height: auto; display: block; object-fit: cover; max-height: 250px;">
+    <div class="header">
+        <h1>
+            📚 Книжный навигатор
+            <span>✨</span>
+        </h1>
+        <p>Ответьте на 5 вопросов — я предложу идеальную книгу для чтения прямо сейчас</p>
+        
+        <div class="gift-badge">
+            🎁 После прохождения теста получите подарок: персональную подборку из 5 лучших книг в Telegram бесплатно!
+        </div>
+    </div>
+
+    <div class="progress-area" id="progressArea">
+        <div class="step-indicator">
+            <span id="stepCounter">Вопрос 1 из 5</span>
+            <span id="stepLabel">Настроение</span>
+        </div>
+        <div class="bar-bg">
+            <div class="bar-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <div class="quiz-container" id="quizContainer">
+        <!-- динамический контент через JS -->
+    </div>
+
+    <footer>
+        🧠 Отвечай честно — алгоритм подберёт книгу с душой
+    </footer>
+</div>
+
+<script>
+    const booksDB = [
+        { id: 1, title: "Сто лет одиночества", author: "Габриэль Гарсиа Маркес", desc: "Магический реализм, семейная сага, судьба и время. Погружает в другой мир, заставляет задуматься о цикличности жизни.", mood: "меланхолия", genre: "классика/магический реализм", length: "длинная", pace: "размеренный", vibe: "глубокий", emoji: "🦋" },
+        { id: 2, title: "Маленькая жизнь", author: "Ханья Янагихара", desc: "Эмоционально интенсивная драма о дружбе, травме и любви. Для тех, кто готов к сильным переживаниям.", mood: "грусть/серьёзный", genre: "современная проза", length: "длинная", pace: "медленный", vibe: "пронзительный", emoji: "🌧️" },
+        { id: 3, title: "Проект «Счастье»", author: "Гретхен Рубин", desc: "Вдохновляющий нон-фикшн о поиске радости в повседневности. Легко, мотивирующе, с практическими советами.", mood: "радость/вдохновение", genre: "нон-фикшн", length: "средняя", pace: "быстрый", vibe: "жизнеутверждающий", emoji: "☀️" },
+        { id: 4, title: "Тонкое искусство пофигизма", author: "Марк Мэнсон", desc: "Честный и дерзкий самоучитель, как перестать париться и сосредоточиться на важном.", mood: "спокойствие/прагматизм", genre: "нон-фикшн", length: "средняя", pace: "быстрый", vibe: "практичный", emoji: "🧘" },
+        { id: 5, title: "Дюна", author: "Фрэнк Герберт", desc: "Эпическая научная фантастика, политика, экология и герой. Для любителей вселенных и масштаба.", mood: "авантюра/эпичность", genre: "фантастика", length: "длинная", pace: "размеренный", vibe: "захватывающий", emoji: "🌌" },
+        { id: 6, title: "Тайная история", author: "Донна Тартт", desc: "Атмосферный психологический триллер о группе студентов классиков. Тёмный, интеллектуальный, затягивающий.", mood: "мистика/напряжение", genre: "триллер/детектив", length: "длинная", pace: "медленный", vibe: "мрачный", emoji: "🏛️" },
+        { id: 7, title: "Убить пересмешника", author: "Харпер Ли", desc: "Классика о справедливости, детстве и морали. Теплая, мудрая, глубокая книга.", mood: "ностальгия/уют", genre: "классика", length: "средняя", pace: "размеренный", vibe: "человечный", emoji: "🕊️" },
+        { id: 8, title: "Гарри Поттер и философский камень", author: "Дж.К. Роулинг", desc: "Волшебное приключение, дружба и добро. Лёгкая и захватывающая, для любого возраста.", mood: "приключение/радость", genre: "фэнтези", length: "средняя", pace: "быстрый", vibe: "волшебный", emoji: "⚡" },
+        { id: 9, title: "451 градус по Фаренгейту", author: "Рэй Брэдбери", desc: "Мощная антиутопия о цене знаний и силе книг. Короткая, но глубокая.", mood: "задумчивость/бунт", genre: "фантастика", length: "короткая", pace: "быстрый", vibe: "мысль", emoji: "🔥" },
+        { id: 10, title: "Ежевичное вино", author: "Джоанн Харрис", desc: "Уютная, магическая история о дружбе и рецептах. Согревает как чай с корицей.", mood: "уют/тепло", genre: "современная проза", length: "средняя", pace: "размеренный", vibe: "атмосферный", emoji: "🍷" },
+        { id: 11, title: "Шантарам", author: "Грегори Дэвид Робертс", desc: "Эпическое путешествие по Индии, преступление и искупление. Длинная, насыщенная приключениями.", mood: "авантюра/философия", genre: "приключения", length: "длинная", pace: "быстрый", vibe: "бунтарский", emoji: "🌏" },
+        { id: 12, title: "Где-то во времени", author: "Ричард Матесон", desc: "Романтическая фантастика о любви через время. Нежная и трогательная история.", mood: "романтика/мечта", genre: "роман/фантастика", length: "короткая", pace: "размеренный", vibe: "нежный", emoji: "⏳" },
+        { id: 13, title: "Психология влияния", author: "Роберт Чалдини", desc: "Классический нон-фикшн, чтобы понимать людей и убеждать. Очень полезно.", mood: "интерес/знания", genre: "нон-фикшн", length: "средняя", pace: "размеренный", vibe: "познавательный", emoji: "🧠" },
+        { id: 14, title: "О дивный новый мир", author: "Олдос Хаксли", desc: "Еще одна антиутопия, о гедонизме и контроле. Для размышлений.", mood: "скептицизм/анализ", genre: "фантастика", length: "средняя", pace: "размеренный", vibe: "интеллектуальный", emoji: "🧪" },
+        { id: 15, title: "Норвежский лес", author: "Харуки Мураками", desc: "Пронзительная история о любви, потере и памяти. Меланхоличная атмосфера.", mood: "меланхолия", genre: "современная проза", length: "средняя", pace: "медленный", vibe: "лиричный", emoji: "🌲" }
+    ];
+
+    const questions = [
+        { text: "Какое у вас сейчас настроение?", field: "mood", options: [ { value: "радость/вдохновение", label: "✨ Радостное и вдохновляющее", emoji: "😊" }, { value: "меланхолия", label: "🌧️ Меланхолия, лёгкая грусть", emoji: "🍂" }, { value: "авантюра/эпичность", label: "⚡ Тянет к приключениям и драйву", emoji: "🏔️" }, { value: "уют/тепло", label: "☕ Хочется уюта и тепла", emoji: "🕯️" }, { value: "задумчивость/бунт", label: "🤔 Задумчивость, желание осмыслить", emoji: "📖" } ] },
+        { text: "Какой жанр вам ближе всего прямо сейчас?", field: "genre", options: [ { value: "классика", label: "🏛️ Классическая литература", emoji: "📜" }, { value: "фантастика/фэнтези", label: "🚀 Фантастика / Фэнтези", emoji: "🐉" }, { value: "нон-фикшн", label: "🧠 Нон-фикшн / Саморазвитие", emoji: "💡" }, { value: "триллер/детектив", label: "🔪 Триллер / Детектив", emoji: "🕵️" }, { value: "современная проза", label: "❤️ Современная проза / Романтика", emoji: "💬" } ] },
+        { text: "Какой объём книги вас не пугает?", field: "length", options: [ { value: "короткая", label: "📘 До 300 страниц — лёгкий перекус", emoji: "🥐" }, { value: "средняя", label: "📙 300–500 страниц — в самый раз", emoji: "📚" }, { value: "длинная", label: "📕 500+ страниц — хочу погружение", emoji: "🏋️" } ] },
+        { text: "Какой темп повествования вам нужен?", field: "pace", options: [ { value: "быстрый", label: "⚡ Быстрый, динамичный сюжет", emoji: "🚀" }, { value: "размеренный", label: "🐢 Размеренный, атмосферный", emoji: "🌿" }, { value: "медленный", label: "🍃 Медленный, детальный, медитативный", emoji: "🧘" } ] },
+        { text: "Какой отклик души вы ждёте от книги?", field: "vibe", options: [ { value: "глубокий", label: "🌊 Глубокий, философский отпечаток", emoji: "🌌" }, { value: "жизнеутверждающий", label: "🌸 Жизнеутверждающий и тёплый", emoji: "🌞" }, { value: "захватывающий", label: "🎢 Захватывающий, чтобы не оторваться", emoji: "🎠" }, { value: "познавательный", label: "📚 Познавательный и полезный", emoji: "🧩" }, { value: "лиричный", label: "🎨 Лиричный, красивый слог", emoji: "✍️" } ] }
+    ];
+
+    let currentStep = 0;          
+    let answers = { mood: null, genre: null, length: null, pace: null, vibe: null };
+    let quizFinished = false;
+
+    const quizContainer = document.getElementById('quizContainer');
+    const stepCounterSpan = document.getElementById('stepCounter');
+    const stepLabelSpan = document.getElementById('stepLabel');
+    const progressFill = document.getElementById('progressFill');
+
+    function normalizeTag(str) {
+        if (!str) return "";
+        return str.toLowerCase().replace(/[^а-яa-z0-9]/gi, '');
+    }
+
+    function recommendBook(answersObj) {
+        let bestMatch = null;
+        let maxScore = -1;
+        for (let book of booksDB) {
+            let score = 0;
+            if (answersObj.mood && book.mood) {
+                const normAnsMood = normalizeTag(answersObj.mood);
+                const normBookMood = normalizeTag(book.mood);
+                if (normAnsMood === normBookMood) score += 30;
+                else if (normAnsMood.includes("радость") && normBookMood.includes("радость")) score += 20;
+                else if (normAnsMood.includes("меланхолия") && normBookMood.includes("меланхолия")) score += 25;
+                else if (normAnsMood.includes("авантюра") && (normBookMood.includes("авантюра") || normBookMood.includes("эпичность"))) score += 22;
+                else if (normAnsMood.includes("уют") && normBookMood.includes("уют")) score += 24;
+                else if (normAnsMood.includes("задумчивость") && (normBookMood.includes("задумчивость") || normBookMood.includes("бунт") || normBookMood.includes("скептицизм"))) score += 18;
+            }
+            if (answersObj.genre && book.genre) {
+                let ansGenreNorm = normalizeTag(answersObj.genre);
+                let bookGenreNorm = normalizeTag(book.genre);
+                if (ansGenreNorm === bookGenreNorm) score += 25;
+                else if (ansGenreNorm.includes("фантастика") && bookGenreNorm.includes("фантастика")) score += 20;
+                else if (ansGenreNorm.includes("фэнтези") && bookGenreNorm.includes("фэнтези")) score += 20;
+                else if (ansGenreNorm.includes("нонфикшн") && bookGenreNorm.includes("нонфикшн")) score += 23;
+                else if (ansGenreNorm.includes("классика") && bookGenreNorm.includes("классика")) score += 22;
+                else if (ansGenreNorm.includes("триллер") && bookGenreNorm.includes("триллер")) score += 22;
+                else if (ansGenreNorm.includes("современнаяпроза") && (bookGenreNorm.includes("современнаяпроза") || bookGenreNorm.includes("роман"))) score += 18;
+            }
+            if (answersObj.length && book.length) {
+                if (normalizeTag(answersObj.length) === normalizeTag(book.length)) score += 18;
+            }
+            if (answersObj.pace && book.pace) {
+                if (normalizeTag(answersObj.pace) === normalizeTag(book.pace)) score += 17;
+                else if (answersObj.pace === "быстрый" && book.pace === "размеренный") score += 5;
+                else if (answersObj.pace === "размеренный" && book.pace === "быстрый") score += 3;
+            }
+            if (answersObj.vibe && book.vibe) {
+                const vibeMap = {
+                    "глубокий": ["глубокий", "интеллектуальный", "мысль", "мрачный", "пронзительный"],
+                    "жизнеутверждающий": ["жизнеутверждающий", "волшебный", "человечный", "атмосферный"],
+                    "захватывающий": ["захватывающий", "бунтарский", "волшебный"],
+                    "познавательный": ["познавательный", "практичный"],
+                    "лиричный": ["лиричный", "нежный", "атмосферный"]
+                };
+                let normalizedVibeAns = normalizeTag(answersObj.vibe);
+                let normalizedVibeBook = normalizeTag(book.vibe);
+                if (normalizedVibeAns === normalizedVibeBook) score += 20;
+                else {
+                    let match = false;
+                    for (let [key, synonyms] of Object.entries(vibeMap)) {
+                        if (normalizeTag(key) === normalizedVibeAns) {
+                            if (synonyms.some(syn => normalizeTag(syn) === normalizedVibeBook)) { match = true; break; }
+                        }
+                    }
+                    if (match) score += 15;
+                }
+            }
+            if (score > maxScore) { maxScore = score; bestMatch = book; }
+        }
+        if (!bestMatch) bestMatch = booksDB[0];
+        return bestMatch;
+    }
+
+    // === ИСПРАВЛЕННАЯ ФУНКЦИЯ: отправляет ТОЛЬКО название книги ===
+    function openTelegramWithBook(title, author) {
+        const botUsername = "HavigatorAI_bot"; 
+        // Теперь отправляется только чистое название, например: "Дюна"
+        const message = title; 
+        const encodedMessage = encodeURIComponent(message);
+        const telegramLink = `https://t.me/${botUsername}?text=${encodedMessage}`;
+        window.open(telegramLink, '_blank');
+    }
+
+    function renderQuestion() {
+        if (quizFinished) {
+            const recommended = recommendBook(answers);
+            quizContainer.innerHTML = `
+                <div class="result-card">
+                    <div class="book-emoji">${recommended.emoji || "📖"}</div>
+                    <div class="book-title">${recommended.title}</div>
+                    <div class="book-author">${recommended.author}</div>
+                    <div class="book-desc">${recommended.desc}</div>
+                    
+                    <div style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 20px; border: 2px dashed #2AABEE; text-align: center; animation: fadeSlide 0.6s ease;">
+                        <p style="margin: 0 0 16px 0; font-size: 1rem; color: #0c4a6e; font-weight: 700; line-height: 1.4;">
+                            🎁 Отличный выбор!<br>
+                            Получите <strong>персональную подборку из 5 лучших книг</strong> в этом жанре в Telegram абсолютно бесплатно!
+                        </p>
+                        <button class="telegram-btn" id="telegramBtn" style="margin: 0 auto; max-width: 400px;">
+                            📱 Открыть бота и получить подборку
+                        </button>
+                    </div>
+                    
+                    <button class="reset-btn" id="resetQuizBtn">🔄 Пройти тест заново</button>
+                </div>
+            `;
+            
+            const telegramBtn = document.getElementById('telegramBtn');
+            if (telegramBtn) {
+                telegramBtn.addEventListener('click', () => {
+                    openTelegramWithBook(recommended.title, recommended.author);
+                });
+            }
+
+            const resetBtn = document.getElementById('resetQuizBtn');
+            if (resetBtn) resetBtn.addEventListener('click', resetQuiz);
+            return;
+        }
+
+        const q = questions[currentStep];
+        const field = q.field;
+        const currentAnswer = answers[field];
+
+        let optionsHtml = '';
+        q.options.forEach(opt => {
+            const isSelected = (currentAnswer === opt.value);
+            const selectedClass = isSelected ? 'selected' : '';
+            optionsHtml += `
+                <div class="option-btn ${selectedClass}" data-value="${opt.value}">
+                    <span class="option-emoji">${opt.emoji}</span>
+                    <span>${opt.label}</span>
+                </div>
+            `;
+        });
+
+        const showPrev = currentStep > 0;
+        const nextBtnText = (currentStep === questions.length - 1) ? '📌 Узнать книгу' : 'Далее →';
+
+        const html = `
+            <div class="question-card">
+                <div class="question-text">${q.text}</div>
+                <div class="options-grid" id="optionsGrid">
+                    ${optionsHtml}
+                </div>
+                <div class="nav-buttons">
+                    ${showPrev ? '<button class="btn btn-secondary" id="prevBtn">← Назад</button>' : '<div></div>'}
+                    <button class="btn btn-primary" id="nextBtn">${nextBtnText}</button>
+                </div>
+            </div>
+        `;
+        quizContainer.innerHTML = html;
+
+        const optionDivs = document.querySelectorAll('.option-btn');
+        optionDivs.forEach(btn => {
+            btn.addEventListener('click', () => {
+                answers[field] = btn.getAttribute('data-value');
+                renderQuestion();
+            });
+        });
+
+        const nextBtn = document.getElementById('nextBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (!answers[field]) {
+                    alert('Пожалуйста, выберите вариант ответа 😊');
+                    return;
+                }
+                if (currentStep === questions.length - 1) {
+                    quizFinished = true;
+                    renderQuestion();
+                    updateProgress(1);
+                    stepCounterSpan.innerText = `Рекомендация`;
+                    stepLabelSpan.innerText = 'Ваша книга';
+                } else {
+                    currentStep++;
+                    updateProgress(currentStep / questions.length);
+                    stepCounterSpan.innerText = `Вопрос ${currentStep+1} из ${questions.length}`;
+                    stepLabelSpan.innerText = questions[currentStep].text.substring(0, 40);
+                    renderQuestion();
+                }
+            });
+        }
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                currentStep--;
+                updateProgress(currentStep / questions.length);
+                stepCounterSpan.innerText = `Вопрос ${currentStep+1} из ${questions.length}`;
+                stepLabelSpan.innerText = questions[currentStep].text.substring(0, 40);
+                renderQuestion();
+            });
+        }
+    }
+
+    function updateProgress(percent) {
+        let perc = Math.floor(percent * 100);
+        if (quizFinished) perc = 100;
+        progressFill.style.width = `${perc}%`;
+    }
+
+    function resetQuiz() {
+        currentStep = 0;
+        answers = { mood: null, genre: null, length: null, pace: null, vibe: null };
+        quizFinished = false;
+        updateProgress(0);
+        stepCounterSpan.innerText = `Вопрос 1 из ${questions.length}`;
+        stepLabelSpan.innerText = questions[0].text.substring(0, 40);
+        renderQuestion();
+    }
+
+    function init() {
+        updateProgress(0);
+        stepCounterSpan.innerText = `Вопрос 1 из ${questions.length}`;
+        stepLabelSpan.innerText = questions[0].text.substring(0, 40);
+        renderQuestion();
+    }
+
+    init();
+</script>
+</body>
+</html>
